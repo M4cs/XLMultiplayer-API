@@ -36,6 +36,7 @@ class Servers:
                 if s.serverAddress == server.serverAddress:
                     s.update_server(server)
                 else:
+                    print("Adding Server with IP:", s.serverAddress)
                     self.servers.append(server)
         else:
             self.servers.append(server)
