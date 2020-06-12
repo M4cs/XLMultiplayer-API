@@ -32,12 +32,15 @@ class Servers:
     
     def add_server(self, server):
         if len(self.servers) > 0:
+            match = False
             for s in self.servers:
                 if s.serverAddress == server.serverAddress:
-                    s.update_server(server)
-                else:
-                    print("Adding Server with IP:", s.serverAddress)
-                    self.servers.append(server)
+                    match = True
+
+            if not match:
+                self.servers.append(server)
+            else:
+                s.update_server(server)
         else:
             self.servers.append(server)
 
