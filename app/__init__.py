@@ -136,4 +136,5 @@ sched = BackgroundScheduler()
 
 trigger = IntervalTrigger(seconds=20)
 sched.add_job(check_for_dead_servers, trigger)
+sched.add_job(get_official_servers, IntervalTrigger(seconds=15))
 sched.start()
