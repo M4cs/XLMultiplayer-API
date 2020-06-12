@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, redirect, request
 from flask_restful import reqparse
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -48,17 +48,25 @@ def ka_parser():
     parser.add_argument('currentPlayers')
     parser.add_argument('serverPort')
     parser.add_argument('serverVersion')
-    parser.add_argument('serverAddress')
     parser.add_argument('mapName')
     return parser
 
 servers = Servers()
 
+@app.route('/')
+def index():
+    return redirect('https://sxlservers.com'), 200
+
 @app.route('/serverinfo', methods=['POST'])
 def serverinfo():
     parser = ka_parser()
     args = parser.parse_args()
-    server = Server(**args)
+    if request.headers.getlist("X-Forwarded-For"):
+        ip = request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        ip = request.remote_addr
+    server = Server(ip, **args)
+    print(server.serverAddress)
     servers.add_server(server)
     print(servers.servers)
     return "", 200
