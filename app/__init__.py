@@ -6,7 +6,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 import requests, json
 
 class Server:
-    def __init__(self, serverAddress, serverPort, serverName, currentPlayers, serverVersion, maxPlayers, mapName):
+    def __init__(self, serverAddress, serverPort, serverName, currentPlayers, serverVersion, maxPlayers, mapName, is_official=False):
         self.serverName = serverName
         self.serverPort = serverPort
         self.currentPlayers = currentPlayers
@@ -14,6 +14,7 @@ class Server:
         self.maxPlayers = maxPlayers
         self.mapName = mapName
         self.serverAddress = serverAddress
+        self.is_official = is_official
         self.lastUpdated = datetime.now().strftime("%Y-%m-%dT%XZ")
     
     def update_server(self, server):
@@ -52,6 +53,11 @@ def ka_parser():
     parser.add_argument('mapName')
     return parser
 
+def s_parser():
+    parser = reqparse.RequestParser()
+    parser.add_argument('hideOfficial')
+    return parser
+
 servers = Servers()
 
 @app.route('/')
@@ -67,30 +73,48 @@ def serverinfo():
     else:
         ip = request.remote_addr
     server = Server(ip, **args)
-    print(server.serverAddress)
     servers.add_server(server)
-    print(servers.servers)
     return "", 200
 
 @app.route('/getservers', methods=['GET'])
 def getservers():
+    parser = s_parser()
+    args = parser.parse_args()
     obj = []
     for s in servers.servers:
-        sobj = {
-            "model": "api.server",
-            "pk": 1503,
-            "fields": {
-                "name": s.serverName,
-                "IP": s.serverAddress,
-                "port": s.serverPort,
-                "version": s.serverVersion,
-                "mapName": s.mapName,
-                "maxPlayers": s.maxPlayers,
-                "currentPlayers": s.currentPlayers,
-                "lastUpdated": s.lastUpdated
-            }
-        }
-        obj.append(sobj)
+        if args['hideOfficial']:
+            if not s.is_official:
+                sobj = {
+                    "model": "api.server",
+                    "pk": 1503,
+                    "fields": {
+                        "name": s.serverName,
+                        "IP": s.serverAddress,
+                        "port": s.serverPort,
+                        "version": s.serverVersion,
+                        "mapName": s.mapName,
+                        "maxPlayers": s.maxPlayers,
+                        "currentPlayers": s.currentPlayers,
+                        "lastUpdated": s.lastUpdated
+                    }
+                }
+                obj.append(sobj)
+        else:
+            sobj = {
+                    "model": "api.server",
+                    "pk": 1503,
+                    "fields": {
+                        "name": s.serverName,
+                        "IP": s.serverAddress,
+                        "port": s.serverPort,
+                        "version": s.serverVersion,
+                        "mapName": s.mapName,
+                        "maxPlayers": s.maxPlayers,
+                        "currentPlayers": s.currentPlayers,
+                        "lastUpdated": s.lastUpdated
+                    }
+                }
+            obj.append(sobj)
     return jsonify(obj), 200
 
 
@@ -102,9 +126,8 @@ def check_for_dead_servers():
 def get_official_servers():
     req = requests.get("http://www.davisellwood.com/api/getservers/")
     obj = json.loads(req.json())
-    print(obj)
     for x in obj:
-        server = Server(x['fields']['IP'], x['fields']['port'], x['fields']['name'], x['fields']['currentPlayers'], x['fields']['version'], x['fields']['maxPlayers'], x['fields']['mapName'])
+        server = Server(x['fields']['IP'], x['fields']['port'], x['fields']['name'], x['fields']['currentPlayers'], x['fields']['version'], x['fields']['maxPlayers'], x['fields']['mapName'], is_official=True)
         servers.add_server(server)
 
 get_official_servers()
