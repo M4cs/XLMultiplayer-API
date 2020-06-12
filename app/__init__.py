@@ -3,6 +3,7 @@ from flask_restful import reqparse
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+import requests, json
 
 class Server:
     def __init__(self, serverAddress, serverPort, serverName, currentPlayers, serverVersion, maxPlayers, mapName):
@@ -97,6 +98,16 @@ def check_for_dead_servers():
     for s in servers.servers:
         if datetime.strptime(s.lastUpdated, "%Y-%m-%dT%XZ") < datetime.now() - timedelta(seconds=30):
             servers.servers.remove(s)
+
+def get_official_servers():
+    req = requests.get("http://www.davisellwood.com/api/getservers/")
+    obj = json.loads(req.json())
+    print(obj)
+    for x in obj:
+        server = Server(x['fields']['IP'], x['fields']['port'], x['fields']['name'], x['fields']['currentPlayers'], x['fields']['version'], x['fields']['maxPlayers'], x['fields']['mapName'])
+        servers.add_server(server)
+
+get_official_servers()
 
 sched = BackgroundScheduler()
 
