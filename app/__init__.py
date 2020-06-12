@@ -5,7 +5,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 class Server:
-    def __init__(self, serverAddress, serverPort, serverName, currentPlayers, serverVersion, maxPlayers, mapName, apiKey):
+    def __init__(self, serverAddress, serverPort, serverName, currentPlayers, serverVersion, maxPlayers, mapName):
         self.serverName = serverName
         self.serverPort = serverPort
         self.currentPlayers = currentPlayers
@@ -13,7 +13,6 @@ class Server:
         self.maxPlayers = maxPlayers
         self.mapName = mapName
         self.serverAddress = serverAddress
-        self.apiKey = apiKey
         self.lastUpdated = datetime.now().strftime("%Y-%m-%dT%XZ")
     
     def update_server(self, server):
@@ -23,7 +22,6 @@ class Server:
         self.serverVersion = server.serverVersion
         self.maxPlayers = server.maxPlayers
         self.mapName = server.mapName
-        self.serverAddress = server.serverAddress
         self.lastUpdated = datetime.now().strftime("%Y-%m-%dT%XZ")
 
 class Servers:
@@ -33,7 +31,7 @@ class Servers:
     def add_server(self, server):
         if len(self.servers) > 0:
             for s in self.servers:
-                if s.apiKey == server.apiKey:
+                if s.serverAddress == server.serverAddress:
                     s.update_server(server)
                 else:
                     self.servers.append(server)
@@ -52,7 +50,6 @@ def ka_parser():
     parser.add_argument('serverVersion')
     parser.add_argument('serverAddress')
     parser.add_argument('mapName')
-    parser.add_argument('apiKey')
     return parser
 
 servers = Servers()
