@@ -16,15 +16,7 @@ class Server:
         self.serverAddress = serverAddress
         self.is_official = is_official
         self.lastUpdated = datetime.now().strftime("%Y-%m-%dT%XZ")
-    
-    def update_server(self, server):
-        self.serverName = server.serverName
-        self.serverPort = server.serverPort
-        self.currentPlayers = server.currentPlayers
-        self.serverVersion = server.serverVersion
-        self.maxPlayers = server.maxPlayers
-        self.mapName = server.mapName
-        self.lastUpdated = datetime.now().strftime("%Y-%m-%dT%XZ")
+
 
 class Servers:
     def __init__(self):
@@ -40,7 +32,8 @@ class Servers:
             if not match:
                 self.servers.append(server)
             else:
-                s.update_server(server)
+                servers.servers.remove(s)
+                self.servers.append(server)
         else:
             self.servers.append(server)
 
