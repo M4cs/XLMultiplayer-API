@@ -21,21 +21,21 @@ class Server:
 class Servers:
     def __init__(self):
         self.servers = []
+        self.server_ips = []
     
     def add_server(self, server):
-        if len(self.servers) > 0:
-            match = False
-            for s in self.servers:
-                if s.serverAddress == server.serverAddress:
-                    match = True
-
-            if not match:
-                self.servers.append(server)
-            else:
-                servers.servers.remove(s)
-                self.servers.append(server)
+        if server.serverAddress in self.server_ips:
+            new_servers = []
+            for x in self.servers:
+                if x.serverAddress == server.serverAddress:
+                    pass
+                else:
+                    new_servers.append(x)
+            self.servers = new_servers
+            self.servers.append(server)
         else:
             self.servers.append(server)
+            self.server_ips.append(server.serverAddress)
 
 
 app = Flask(__name__)
@@ -75,6 +75,8 @@ def serverinfo():
 
 @app.route('/getservers', methods=['GET'])
 def getservers():
+    for s in servers.servers:
+        print(s.serverAddress)
     parser = s_parser()
     args = parser.parse_args()
     obj = []
@@ -119,6 +121,7 @@ def check_for_dead_servers():
     for s in servers.servers:
         if datetime.strptime(s.lastUpdated, "%Y-%m-%dT%XZ") < datetime.now() - timedelta(seconds=30):
             servers.servers.remove(s)
+            servers.server_ips.remove(s.serverAddress)
 
 def get_official_servers():
     req = requests.get("http://www.davisellwood.com/api/getservers/")
@@ -126,6 +129,7 @@ def get_official_servers():
     for x in obj:
         server = Server(x['fields']['IP'], x['fields']['port'], x['fields']['name'], x['fields']['currentPlayers'], x['fields']['version'], x['fields']['maxPlayers'], x['fields']['mapName'], is_official=True)
         servers.add_server(server)
+    print(servers.servers)
 
 get_official_servers()
 
