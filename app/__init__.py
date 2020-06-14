@@ -50,11 +50,6 @@ def ka_parser():
     parser.add_argument('mapName')
     return parser
 
-def s_parser():
-    parser = reqparse.RequestParser()
-    parser.add_argument('hideOfficial')
-    return parser
-
 servers = Servers()
 
 @app.route('/')
@@ -81,39 +76,21 @@ def getservers():
     args = parser.parse_args()
     obj = []
     for s in servers.servers:
-        if args['hideOfficial']:
-            if not s.is_official:
-                sobj = {
-                    "model": "api.server",
-                    "pk": 1503,
-                    "fields": {
-                        "name": s.serverName,
-                        "IP": s.serverAddress,
-                        "port": s.serverPort,
-                        "version": s.serverVersion,
-                        "mapName": s.mapName,
-                        "maxPlayers": s.maxPlayers,
-                        "currentPlayers": s.currentPlayers,
-                        "lastUpdated": s.lastUpdated
-                    }
+        sobj = {
+                "model": "api.server",
+                "pk": 1503,
+                "fields": {
+                    "name": s.serverName,
+                    "IP": s.serverAddress,
+                    "port": s.serverPort,
+                    "version": s.serverVersion,
+                    "mapName": s.mapName,
+                    "maxPlayers": s.maxPlayers,
+                    "currentPlayers": s.currentPlayers,
+                    "lastUpdated": s.lastUpdated
                 }
-                obj.append(sobj)
-        else:
-            sobj = {
-                    "model": "api.server",
-                    "pk": 1503,
-                    "fields": {
-                        "name": s.serverName,
-                        "IP": s.serverAddress,
-                        "port": s.serverPort,
-                        "version": s.serverVersion,
-                        "mapName": s.mapName,
-                        "maxPlayers": s.maxPlayers,
-                        "currentPlayers": s.currentPlayers,
-                        "lastUpdated": s.lastUpdated
-                    }
-                }
-            obj.append(sobj)
+            }
+        obj.append(sobj)
     return jsonify(obj), 200
 
 
@@ -123,19 +100,8 @@ def check_for_dead_servers():
             servers.servers.remove(s)
             servers.server_ips.remove(s.serverAddress)
 
-def get_official_servers():
-    req = requests.get("http://www.davisellwood.com/api/getservers/")
-    obj = json.loads(req.json())
-    for x in obj:
-        server = Server(x['fields']['IP'], x['fields']['port'], x['fields']['name'], x['fields']['currentPlayers'], x['fields']['version'], x['fields']['maxPlayers'], x['fields']['mapName'], is_official=True)
-        servers.add_server(server)
-    print(servers.servers)
-
-get_official_servers()
-
 sched = BackgroundScheduler()
 
 trigger = IntervalTrigger(seconds=20)
 sched.add_job(check_for_dead_servers, trigger)
-sched.add_job(get_official_servers, IntervalTrigger(seconds=15))
 sched.start()
