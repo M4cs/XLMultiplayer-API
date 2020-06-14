@@ -70,10 +70,6 @@ def serverinfo():
 
 @app.route('/getservers', methods=['GET'])
 def getservers():
-    for s in servers.servers:
-        print(s.serverAddress)
-    parser = s_parser()
-    args = parser.parse_args()
     obj = []
     for s in servers.servers:
         sobj = {
