@@ -83,7 +83,8 @@ def getservers():
                     "mapName": s.mapName,
                     "maxPlayers": s.maxPlayers,
                     "currentPlayers": s.currentPlayers,
-                    "lastUpdated": s.lastUpdated
+                    "lastUpdated": s.lastUpdated,
+                    "paypal": ""
                 }
             }
         obj.append(sobj)
