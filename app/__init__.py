@@ -54,7 +54,7 @@ servers = Servers()
 
 @app.route('/')
 def index():
-    return redirect('https://sxlservers.com'), 200
+    return redirect('https://sxlservers.com', 302), 200
 
 @app.route('/serverinfo', methods=['POST'])
 def serverinfo():
