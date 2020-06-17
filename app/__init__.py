@@ -24,7 +24,7 @@ class Servers:
         self.server_ips = []
     
     def add_server(self, server):
-        if server.serverAddress in self.server_ips:
+        if str(server.serverAddress + ":" + server.serverPort) in self.server_ips:
             new_servers = []
             for x in self.servers:
                 if x.serverAddress == server.serverAddress:
@@ -35,7 +35,7 @@ class Servers:
             self.servers.append(server)
         else:
             self.servers.append(server)
-            self.server_ips.append(server.serverAddress)
+            self.server_ips.append(server.serverAddress + ":" + server.serverPort)
 
 
 app = Flask(__name__)
