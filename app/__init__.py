@@ -65,6 +65,7 @@ def serverinfo():
     else:
         ip = request.remote_addr
     server = Server(ip, **args)
+    print(server.mapName)
     servers.add_server(server)
     return "", 200
 
