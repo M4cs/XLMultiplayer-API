@@ -27,7 +27,7 @@ class Servers:
         if str(server.serverAddress + ":" + server.serverPort) in self.server_ips:
             new_servers = []
             for x in self.servers:
-                if x.serverAddress == server.serverAddress:
+                if x.serverAddress == server.serverAddress and x.serverPort == server.serverPort:
                     pass
                 else:
                     new_servers.append(x)
